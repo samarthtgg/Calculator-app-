@@ -2,144 +2,193 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Secure Multi-User Calculator Vault</title>
+<title>Samarth Ultra Vault</title>
 
 <style>
 body{
-    margin:0;
-    font-family:Arial;
-    background:linear-gradient(135deg,#1e1e2f,#151528);
-    color:white;
+margin:0;
+font-family:Segoe UI;
+background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+color:white;
+overflow:hidden;
+transition:0.4s;
 }
+.light{
+background:linear-gradient(135deg,#f5f7fa,#c3cfe2);
+color:black;
+}
+
+/* SPLASH */
+#splash{
+position:fixed;
+width:100%;
+height:100%;
+display:flex;
+justify-content:center;
+align-items:center;
+background:black;
+z-index:9999;
+}
+#splash h1{
+font-size:60px;
+color:#00c6ff;
+letter-spacing:10px;
+animation:glow 2s infinite alternate;
+}
+@keyframes glow{
+from{ text-shadow:0 0 10px #00c6ff;}
+to{ text-shadow:0 0 40px #00c6ff;}
+}
+
+/* COMMON */
 .center{
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
 }
 .container{
-    width:360px;
-    background:#222;
-    padding:20px;
-    border-radius:15px;
-    box-shadow:0 0 25px #000;
+width:360px;
+background:rgba(255,255,255,0.08);
+backdrop-filter:blur(15px);
+padding:20px;
+border-radius:20px;
+box-shadow:0 0 40px rgba(0,0,0,0.6);
 }
 input,button{
-    width:100%;
-    padding:10px;
-    margin:6px 0;
-    border:none;
-    border-radius:8px;
-    font-size:16px;
+width:100%;
+padding:10px;
+margin:6px 0;
+border:none;
+border-radius:10px;
+font-size:15px;
 }
 button{
-    background:#4CAF50;
-    color:white;
-    cursor:pointer;
+background:#00c6ff;
+color:white;
+cursor:pointer;
+transition:0.3s;
 }
-button:hover{ background:#45a049; }
-
+button:hover{transform:scale(1.05);}
 .display{
-    height:55px;
-    background:black;
-    text-align:right;
-    padding:10px;
-    font-size:22px;
-    border-radius:8px;
+height:55px;
+background:black;
+text-align:right;
+padding:10px;
+font-size:22px;
+border-radius:10px;
 }
-
 .grid{
-    display:grid;
-    grid-template-columns:repeat(4,1fr);
-    gap:8px;
+display:grid;
+grid-template-columns:repeat(4,1fr);
+gap:8px;
 }
-
-#calculator,#vaultPage{ display:none; }
-
-#vaultPage{ padding:20px; }
+#calculator,#vaultPage,#pinScreen,#historyPage{display:none;}
 
 .photoGrid{
-    display:grid;
-    grid-template-columns:repeat(auto-fill,minmax(120px,1fr));
-    gap:10px;
-    margin-top:15px;
+display:grid;
+grid-template-columns:repeat(auto-fill,minmax(100px,1fr));
+gap:10px;
+margin-top:10px;
 }
 .photoGrid img{
-    width:100%;
-    border-radius:10px;
-    cursor:pointer;
+width:100%;
+border-radius:10px;
+cursor:pointer;
 }
 
-.actionBtn{
-    margin-top:5px;
-    font-size:14px;
+/* FULLSCREEN */
+#viewer{
+display:none;
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:black;
+justify-content:center;
+align-items:center;
+flex-direction:column;
+z-index:999;
 }
-
-.deleteBtn{ background:red; }
-.downloadBtn{ background:#2196F3; }
-
-.storageInfo{
-    margin-top:10px;
-    font-size:14px;
-    color:#aaa;
-}
-
-/* FULLSCREEN VIEWER */
-#imageViewer{
-    display:none;
-    position:fixed;
-    top:0;
-    left:0;
-    width:100%;
-    height:100%;
-    background:rgba(0,0,0,0.95);
-    justify-content:center;
-    align-items:center;
-    z-index:9999;
-    flex-direction:column;
-}
-#imageViewer img{
-    max-width:95%;
-    max-height:90%;
-    border-radius:12px;
-    box-shadow:0 0 30px black;
+#viewer img{
+max-width:95%;
+max-height:85%;
+transition:0.3s;
 }
 .closeBtn{
-    position:absolute;
-    top:20px;
-    right:20px;
-    background:red;
-    color:white;
-    border:none;
-    padding:10px 15px;
-    border-radius:8px;
-    font-size:18px;
-    cursor:pointer;
+position:absolute;
+top:20px;
+right:20px;
+background:red;
+padding:10px;
+border-radius:10px;
+}
+#counter{
+position:absolute;
+bottom:20px;
+background:rgba(255,255,255,0.2);
+padding:5px 15px;
+border-radius:20px;
+}
+
+/* HISTORY */
+.history{
+max-height:200px;
+overflow:auto;
+font-size:14px;
+}
+
+/* TOAST */
+.toast{
+position:fixed;
+bottom:20px;
+left:50%;
+transform:translateX(-50%);
+background:black;
+padding:10px 20px;
+border-radius:20px;
+display:none;
 }
 </style>
 </head>
 
 <body>
 
+<div id="splash">
+<h1>SAMARTH</h1>
+</div>
+
 <!-- AUTH -->
-<div class="center" id="auth">
+<div class="center" id="auth" style="display:none;">
 <div class="container">
 <h2>Create Account</h2>
-<input type="text" id="username" placeholder="Username">
-<input type="password" id="password" placeholder="Password">
-<button onclick="createAccount()">Create Account</button>
+<input id="regUser" placeholder="Username">
+<input id="regPass" type="password" placeholder="Password">
+<button onclick="register()">Register</button>
 
-<h2>Sign In</h2>
-<input type="text" id="loginUser" placeholder="Username">
-<input type="password" id="loginPass" placeholder="Password">
-<button onclick="login()">Sign In</button>
+<h2>Login</h2>
+<input id="logUser" placeholder="Username">
+<input id="logPass" type="password" placeholder="Password">
+<button onclick="login()">Login</button>
+</div>
+</div>
+
+<!-- PIN -->
+<div class="center" id="pinScreen">
+<div class="container">
+<h2>Enter Vault PIN</h2>
+<input id="vaultPin" type="password">
+<button onclick="checkPin()">Unlock</button>
+<button onclick="backToCalc()">Back</button>
 </div>
 </div>
 
 <!-- CALCULATOR -->
 <div class="center" id="calculator">
 <div class="container">
-<h2>Secure Calculator</h2>
+<button onclick="toggleTheme()">Theme</button>
+<button onclick="openHistory()">History</button>
 <div class="display" id="display"></div>
 
 <div class="grid">
@@ -147,232 +196,233 @@ button:hover{ background:#45a049; }
 <button onclick="press('8')">8</button>
 <button onclick="press('9')">9</button>
 <button onclick="press('/')">/</button>
-
 <button onclick="press('4')">4</button>
 <button onclick="press('5')">5</button>
 <button onclick="press('6')">6</button>
 <button onclick="press('*')">*</button>
-
 <button onclick="press('1')">1</button>
 <button onclick="press('2')">2</button>
 <button onclick="press('3')">3</button>
 <button onclick="press('-')">-</button>
-
 <button onclick="press('0')">0</button>
 <button onclick="press('.')">.</button>
 <button onclick="calculate()">=</button>
 <button onclick="press('+')">+</button>
+</div>
 
 <button onclick="clearDisplay()">C</button>
-<button onclick="scientific('sqrt')">√</button>
-<button onclick="scientific('pow')">x²</button>
+<button onclick="sqrt()">√</button>
+<button onclick="power()">x²</button>
+<button onclick="memoryAdd()">M+</button>
+<button onclick="memoryRecall()">MR</button>
 <button onclick="logout()">Logout</button>
 </div>
+</div>
+
+<!-- HISTORY -->
+<div class="center" id="historyPage">
+<div class="container">
+<h2>History</h2>
+<div class="history" id="history"></div>
+<button onclick="backToCalc()">Back</button>
 </div>
 </div>
 
 <!-- VAULT -->
-<div id="vaultPage">
-<h2>🔐 Hidden Photo Vault</h2>
-<button onclick="goBack()">⬅ Back</button>
-<button onclick="clearVault()" style="background:orange;">Clear My Vault</button>
-
-<input type="file" accept="image/*" multiple onchange="uploadPhotos(event)">
-<div class="storageInfo" id="storageInfo"></div>
-
-<div class="photoGrid" id="photoContainer"></div>
+<div id="vaultPage" class="container">
+<button onclick="backToCalc()">Back</button>
+<h2>🔐 Secret Vault</h2>
+<input type="file" multiple accept="image/*" onchange="upload(event)">
+<button onclick="clearVault()">Clear Vault</button>
+<div id="storage"></div>
+<div class="photoGrid" id="gallery"></div>
 </div>
 
-<!-- FULLSCREEN IMAGE VIEWER -->
-<div id="imageViewer" onclick="closeViewer()">
-<button class="closeBtn">✖</button>
-<img id="fullImage">
+<!-- FULLSCREEN VIEWER -->
+<div id="viewer">
+<button class="closeBtn" onclick="closeViewer()">✖</button>
+<img id="fullImg">
+<div id="counter"></div>
 </div>
+
+<div class="toast" id="toast"></div>
 
 <script>
-let display=document.getElementById("display");
-let secretInput="";
 let currentUser=null;
+let memory=0;
+let secret="";
+let wrongPin=0;
+let locked=false;
+let currentIndex=0;
+let startX=0;
+let lastActivity=Date.now();
 
-/* ACCOUNT SYSTEM */
-function createAccount(){
-    let user=username.value.trim();
-    let pass=password.value.trim();
-    if(!user || !pass) return alert("Fill all details");
+/* SPLASH */
+setTimeout(()=>{
+splash.style.display="none";
+auth.style.display="flex";
+},2500);
 
-    let users=JSON.parse(localStorage.getItem("users")||"{}");
-    if(users[user]) return alert("Username exists");
+function toastMsg(msg){
+toast.innerText=msg;
+toast.style.display="block";
+setTimeout(()=>toast.style.display="none",2000);
+}
 
-    users[user]=pass;
-    localStorage.setItem("users",JSON.stringify(users));
-    alert("Account Created");
+function register(){
+let u=regUser.value;
+let p=regPass.value;
+if(!u||!p) return toastMsg("Fill fields");
+let users=JSON.parse(localStorage.getItem("users")||"{}");
+users[u]=p;
+localStorage.setItem("users",JSON.stringify(users));
+toastMsg("Registered");
 }
 
 function login(){
-    let user=loginUser.value.trim();
-    let pass=loginPass.value.trim();
-
-    let users=JSON.parse(localStorage.getItem("users")||"{}");
-    if(users[user] && users[user]===pass){
-        currentUser=user;
-        auth.style.display="none";
-        calculator.style.display="flex";
-    }else{
-        alert("Wrong Credentials");
-    }
+let u=logUser.value;
+let p=logPass.value;
+let users=JSON.parse(localStorage.getItem("users")||"{}");
+if(users[u]===p){
+currentUser=u;
+auth.style.display="none";
+calculator.style.display="flex";
+}else toastMsg("Wrong login");
 }
 
-function logout(){
-    currentUser=null;
-    location.reload();
+function logout(){location.reload();}
+
+function press(v){
+display.innerText+=v;
+secret+=v;
+if(secret.includes("777")){
+calculator.style.display="none";
+pinScreen.style.display="flex";
 }
-
-/* CALCULATOR */
-function press(val){
-    display.innerText+=val;
-    secretInput+=val;
-
-    if(secretInput.includes("777")){
-        openVault();
-    }
-    if(secretInput.length>3)
-        secretInput=secretInput.slice(-3);
+if(secret.length>3) secret=secret.slice(-3);
 }
 
 function calculate(){
-    try{ display.innerText=eval(display.innerText); }
-    catch{ display.innerText="Error"; }
+try{
+let result=eval(display.innerText);
+history.innerHTML+=display.innerText+" = "+result+"<br>";
+display.innerText=result;
+}catch{display.innerText="Error";}
 }
 
-function clearDisplay(){ display.innerText=""; }
+function clearDisplay(){display.innerText="";}
+function sqrt(){display.innerText=Math.sqrt(display.innerText);}
+function power(){display.innerText=Math.pow(display.innerText,2);}
+function memoryAdd(){memory+=parseFloat(display.innerText)||0;}
+function memoryRecall(){display.innerText=memory;}
 
-function scientific(type){
-    let value=parseFloat(display.innerText);
-    if(isNaN(value)) return;
-    if(type==="sqrt") display.innerText=Math.sqrt(value);
-    if(type==="pow") display.innerText=Math.pow(value,2);
+function openHistory(){
+calculator.style.display="none";
+historyPage.style.display="flex";
 }
 
-/* VAULT */
-function getUserKey(){ return "photos_"+currentUser; }
-
-function openVault(){
-    calculator.style.display="none";
-    vaultPage.style.display="block";
-    loadPhotos();
+function backToCalc(){
+pinScreen.style.display="none";
+vaultPage.style.display="none";
+historyPage.style.display="none";
+calculator.style.display="flex";
 }
 
-function goBack(){
-    vaultPage.style.display="none";
-    calculator.style.display="flex";
+function checkPin(){
+if(locked) return;
+let pin=vaultPin.value;
+let savedPin=localStorage.getItem("pin_"+currentUser)||"1234";
+if(pin===savedPin){
+pinScreen.style.display="none";
+vaultPage.style.display="block";
+load();
+}else{
+wrongPin++;
+toastMsg("Wrong PIN");
+if(wrongPin>=3){
+locked=true;
+toastMsg("Locked 30 sec");
+setTimeout(()=>{locked=false;wrongPin=0;},30000);
+}
+}
 }
 
-function uploadPhotos(event){
-    let files=Array.from(event.target.files);
-    let photos=JSON.parse(localStorage.getItem(getUserKey())||"[]");
-
-    files.forEach(file=>{
-        let reader=new FileReader();
-        reader.onload=function(e){
-            let img=new Image();
-            img.src=e.target.result;
-            img.onload=function(){
-                let canvas=document.createElement("canvas");
-                let ctx=canvas.getContext("2d");
-
-                let MAX_WIDTH=800;
-                let scale=MAX_WIDTH/img.width;
-                canvas.width=MAX_WIDTH;
-                canvas.height=img.height*scale;
-
-                ctx.drawImage(img,0,0,canvas.width,canvas.height);
-                let compressed=canvas.toDataURL("image/jpeg",0.7);
-
-                photos.push(compressed);
-                try{
-                    localStorage.setItem(getUserKey(),JSON.stringify(photos));
-                    loadPhotos();
-                }catch{
-                    alert("Storage full.");
-                }
-            }
-        }
-        reader.readAsDataURL(file);
-    });
+function upload(e){
+let files=Array.from(e.target.files);
+let photos=JSON.parse(localStorage.getItem("photos_"+currentUser)||"[]");
+files.forEach(f=>{
+let r=new FileReader();
+r.onload=function(ev){
+photos.push(ev.target.result);
+localStorage.setItem("photos_"+currentUser,JSON.stringify(photos));
+load();
+}
+r.readAsDataURL(f);
+});
 }
 
-function loadPhotos(){
-    let container=document.getElementById("photoContainer");
-    container.innerHTML="";
-    let photos=JSON.parse(localStorage.getItem(getUserKey())||"[]");
-
-    updateStorageInfo(photos);
-
-    photos.forEach((photo,index)=>{
-        let wrapper=document.createElement("div");
-
-        let img=document.createElement("img");
-        img.src=photo;
-        img.onclick=function(){
-            openViewer(photo);
-        };
-
-        let download=document.createElement("button");
-        download.innerText="Download";
-        download.className="actionBtn downloadBtn";
-        download.onclick=function(e){
-            e.stopPropagation();
-            fetch(photo)
-            .then(res=>res.blob())
-            .then(blob=>{
-                let url=URL.createObjectURL(blob);
-                let a=document.createElement("a");
-                a.href=url;
-                a.download="secret_photo_"+index+".jpg";
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-            });
-        };
-
-        let del=document.createElement("button");
-        del.innerText="Delete";
-        del.className="actionBtn deleteBtn";
-        del.onclick=function(e){
-            e.stopPropagation();
-            photos.splice(index,1);
-            localStorage.setItem(getUserKey(),JSON.stringify(photos));
-            loadPhotos();
-        };
-
-        wrapper.appendChild(img);
-        wrapper.appendChild(download);
-        wrapper.appendChild(del);
-        container.appendChild(wrapper);
-    });
+function load(){
+gallery.innerHTML="";
+let photos=JSON.parse(localStorage.getItem("photos_"+currentUser)||"[]");
+storage.innerText="Photos: "+photos.length;
+photos.forEach((p,i)=>{
+let img=document.createElement("img");
+img.src=p;
+img.onclick=()=>openViewer(i);
+gallery.appendChild(img);
+});
 }
+
+function openViewer(i){
+let photos=JSON.parse(localStorage.getItem("photos_"+currentUser)||"[]");
+currentIndex=i;
+viewer.style.display="flex";
+fullImg.src=photos[i];
+counter.innerText=(i+1)+" / "+photos.length;
+}
+
+function closeViewer(){
+viewer.style.display="none";
+}
+
+/* TOUCH SWIPE */
+viewer.addEventListener("touchstart",e=>{
+startX=e.touches[0].clientX;
+});
+
+viewer.addEventListener("touchend",e=>{
+let endX=e.changedTouches[0].clientX;
+let diff=endX-startX;
+let photos=JSON.parse(localStorage.getItem("photos_"+currentUser)||"[]");
+
+if(Math.abs(diff)>50){
+if(diff<0){
+currentIndex=(currentIndex+1)%photos.length;
+}else{
+currentIndex=(currentIndex-1+photos.length)%photos.length;
+}
+fullImg.src=photos[currentIndex];
+counter.innerText=(currentIndex+1)+" / "+photos.length;
+}
+});
 
 function clearVault(){
-    if(confirm("Delete all photos?")){
-        localStorage.removeItem(getUserKey());
-        loadPhotos();
-    }
+localStorage.removeItem("photos_"+currentUser);
+load();
 }
 
-function updateStorageInfo(photos){
-    let totalSize=new Blob(photos).size/1024/1024;
-    storageInfo.innerText="Storage used: "+totalSize.toFixed(2)+" MB (Limit ~5MB)";
+function toggleTheme(){
+document.body.classList.toggle("light");
 }
 
-/* FULLSCREEN VIEWER */
-function openViewer(src){
-    document.getElementById("fullImage").src=src;
-    document.getElementById("imageViewer").style.display="flex";
+setInterval(()=>{
+if(Date.now()-lastActivity>120000 && currentUser){
+toastMsg("Auto logout");
+logout();
 }
-function closeViewer(){
-    document.getElementById("imageViewer").style.display="none";
-}
+},5000);
+
+document.onclick=()=>lastActivity=Date.now();
 </script>
 
 </body>
