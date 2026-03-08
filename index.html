@@ -1,429 +1,745 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Samarth Ultra Vault</title>
-
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600&display=swap" rel="stylesheet">
 <style>
-body{
-margin:0;
-font-family:Segoe UI;
-background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
-color:white;
-overflow:hidden;
-transition:0.4s;
+:root {
+  --primary: #00c6ff;
+  --accent: #ff6b6b;
+  --gold: #ffd700;
+  --bg1: #060b18;
+  --bg2: #0d1b2a;
+  --glass: rgba(0,198,255,0.07);
+  --glass-border: rgba(0,198,255,0.2);
+  --success: #00ff88;
+  --danger: #ff4444;
+  --text: #e0f0ff;
 }
-.light{
-background:linear-gradient(135deg,#f5f7fa,#c3cfe2);
-color:black;
+.light-theme {
+  --bg1: #e8f4f8;
+  --bg2: #d0e8f0;
+  --glass: rgba(0,100,180,0.07);
+  --glass-border: rgba(0,100,180,0.25);
+  --text: #0a1a2e;
+  --primary: #0077aa;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Rajdhani', sans-serif;
+  background: var(--bg1);
+  color: var(--text);
+  height: 100vh;
+  overflow: hidden;
+  transition: background 0.5s, color 0.5s;
+}
+
+/* NOISE OVERLAY */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.5;
+}
+
+/* GRID BG */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(0,198,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,198,255,0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+  z-index: 0;
 }
 
 /* SPLASH */
-#splash{
-position:fixed;
-width:100%;
-height:100%;
-display:flex;
-justify-content:center;
-align-items:center;
-background:black;
-z-index:9999;
+#splash {
+  position: fixed;
+  inset: 0;
+  background: #000;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  gap: 20px;
 }
-#splash h1{
-font-size:60px;
-color:#00c6ff;
-letter-spacing:10px;
-animation:glow 2s infinite alternate;
+.splash-logo {
+  font-family: 'Orbitron', monospace;
+  font-size: clamp(36px, 8vw, 72px);
+  font-weight: 900;
+  letter-spacing: 16px;
+  color: var(--primary);
+  animation: pulseGlow 1.5s infinite alternate;
 }
-@keyframes glow{
-from{ text-shadow:0 0 10px #00c6ff;}
-to{ text-shadow:0 0 40px #00c6ff;}
+.splash-sub {
+  font-size: 14px;
+  letter-spacing: 6px;
+  color: rgba(0,198,255,0.5);
+  text-transform: uppercase;
 }
-
-/* COMMON */
-.center{
-display:flex;
-justify-content:center;
-align-items:center;
-height:100vh;
+.splash-bar {
+  width: 200px;
+  height: 3px;
+  background: rgba(0,198,255,0.15);
+  border-radius: 99px;
+  overflow: hidden;
+  margin-top: 10px;
 }
-.container{
-width:360px;
-background:rgba(255,255,255,0.08);
-backdrop-filter:blur(15px);
-padding:20px;
-border-radius:20px;
-box-shadow:0 0 40px rgba(0,0,0,0.6);
+.splash-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary), #7fff00);
+  border-radius: 99px;
+  animation: fillBar 2.3s ease forwards;
 }
-input,button{
-width:100%;
-padding:10px;
-margin:6px 0;
-border:none;
-border-radius:10px;
-font-size:15px;
-}
-button{
-background:#00c6ff;
-color:white;
-cursor:pointer;
-transition:0.3s;
-}
-button:hover{transform:scale(1.05);}
-.display{
-height:55px;
-background:black;
-text-align:right;
-padding:10px;
-font-size:22px;
-border-radius:10px;
-}
-.grid{
-display:grid;
-grid-template-columns:repeat(4,1fr);
-gap:8px;
-}
-#calculator,#vaultPage,#pinScreen,#historyPage{display:none;}
-
-.photoGrid{
-display:grid;
-grid-template-columns:repeat(auto-fill,minmax(100px,1fr));
-gap:10px;
-margin-top:10px;
-}
-.photoGrid img{
-width:100%;
-border-radius:10px;
-cursor:pointer;
+@keyframes fillBar { from{width:0} to{width:100%} }
+@keyframes pulseGlow {
+  from { text-shadow: 0 0 10px var(--primary), 0 0 30px rgba(0,198,255,0.3); }
+  to   { text-shadow: 0 0 30px var(--primary), 0 0 80px rgba(0,198,255,0.5), 0 0 120px rgba(0,198,255,0.2); }
 }
 
-/* FULLSCREEN */
-#viewer{
-display:none;
-position:fixed;
-top:0;
-left:0;
-width:100%;
-height:100%;
-background:black;
-justify-content:center;
-align-items:center;
-flex-direction:column;
-z-index:999;
+/* PAGES */
+.page {
+  position: fixed;
+  inset: 0;
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 10;
+  padding: 16px;
 }
-#viewer img{
-max-width:95%;
-max-height:85%;
-transition:0.3s;
+.page.active { display: flex; }
+.page-full {
+  position: fixed;
+  inset: 0;
+  display: none;
+  z-index: 10;
+  padding: 16px;
+  flex-direction: column;
 }
-.closeBtn{
-position:absolute;
-top:20px;
-right:20px;
-background:red;
-padding:10px;
-border-radius:10px;
+.page-full.active { display: flex; }
+
+/* CARD */
+.card {
+  width: 100%;
+  max-width: 380px;
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  padding: 28px 24px;
+  border-radius: 24px;
+  box-shadow: 0 8px 60px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.07);
+  animation: slideUp 0.4s ease;
 }
-#counter{
-position:absolute;
-bottom:20px;
-background:rgba(255,255,255,0.2);
-padding:5px 15px;
-border-radius:20px;
+@keyframes slideUp {
+  from { opacity:0; transform: translateY(20px); }
+  to   { opacity:1; transform: translateY(0); }
 }
 
-/* HISTORY */
-.history{
-max-height:200px;
-overflow:auto;
-font-size:14px;
+/* HEADINGS */
+h2 {
+  font-family: 'Orbitron', monospace;
+  font-size: 18px;
+  letter-spacing: 4px;
+  margin-bottom: 20px;
+  color: var(--primary);
+  text-transform: uppercase;
+}
+
+/* DIVIDER */
+.divider {
+  height: 1px;
+  background: var(--glass-border);
+  margin: 16px 0;
+}
+
+/* INPUTS */
+input[type=text], input[type=password], input[type=file] {
+  width: 100%;
+  padding: 12px 16px;
+  margin: 6px 0;
+  background: rgba(0,0,0,0.3);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  color: var(--text);
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 15px;
+  outline: none;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(0,198,255,0.1);
+}
+
+/* BUTTONS */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  padding: 12px 16px;
+  margin: 5px 0;
+  border: none;
+  border-radius: 12px;
+  font-family: 'Orbitron', monospace;
+  font-size: 12px;
+  letter-spacing: 2px;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.3s, opacity 0.3s;
+  text-transform: uppercase;
+  position: relative;
+  overflow: hidden;
+}
+.btn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(255,255,255,0);
+  transition: background 0.2s;
+}
+.btn:hover::after { background: rgba(255,255,255,0.08); }
+.btn:active { transform: scale(0.96); }
+
+.btn-primary { background: linear-gradient(135deg, var(--primary), #0077b6); color: #fff; box-shadow: 0 4px 20px rgba(0,198,255,0.25); }
+.btn-danger  { background: linear-gradient(135deg, var(--danger), #aa0000); color: #fff; box-shadow: 0 4px 20px rgba(255,68,68,0.2); }
+.btn-success { background: linear-gradient(135deg, var(--success), #009955); color: #000; box-shadow: 0 4px 20px rgba(0,255,136,0.2); }
+.btn-ghost   { background: var(--glass); border: 1px solid var(--glass-border); color: var(--text); }
+.btn-gold    { background: linear-gradient(135deg, var(--gold), #ff8c00); color: #000; box-shadow: 0 4px 20px rgba(255,215,0,0.25); }
+
+.btn-sm { width: auto; padding: 7px 14px; font-size: 10px; margin: 3px; }
+
+/* CALCULATOR */
+#calcPage { align-items: center; }
+.calc-card {
+  width: 100%;
+  max-width: 340px;
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(24px);
+  padding: 20px;
+  border-radius: 28px;
+  box-shadow: 0 8px 60px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.07);
+}
+.calc-topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+.calc-topbar span {
+  font-family: 'Orbitron', monospace;
+  font-size: 11px;
+  letter-spacing: 3px;
+  color: var(--primary);
+}
+.calc-topbar-actions { display: flex; gap: 6px; }
+.icon-btn {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  color: var(--text);
+  border-radius: 10px;
+  padding: 6px 10px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.2s, transform 0.15s;
+}
+.icon-btn:hover { background: rgba(0,198,255,0.15); transform: scale(1.05); }
+
+/* DISPLAY */
+.calc-display {
+  background: rgba(0,0,0,0.5);
+  border: 1px solid var(--glass-border);
+  border-radius: 14px;
+  padding: 12px 16px;
+  text-align: right;
+  margin-bottom: 14px;
+}
+.calc-expr {
+  font-size: 13px;
+  color: rgba(0,198,255,0.5);
+  min-height: 18px;
+  font-family: 'Rajdhani';
+  letter-spacing: 1px;
+}
+.calc-main {
+  font-family: 'Orbitron', monospace;
+  font-size: 28px;
+  color: var(--primary);
+  min-height: 40px;
+  word-break: break-all;
+  transition: color 0.3s;
+}
+.calc-mem {
+  font-size: 11px;
+  color: var(--gold);
+  min-height: 14px;
+}
+
+/* GRID */
+.calc-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+.calc-btn {
+  aspect-ratio: 1;
+  border: 1px solid var(--glass-border);
+  border-radius: 14px;
+  background: rgba(0,0,0,0.3);
+  color: var(--text);
+  font-family: 'Orbitron', monospace;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s, box-shadow 0.2s;
+  display: flex; align-items: center; justify-content: center;
+}
+.calc-btn:hover { background: rgba(0,198,255,0.12); }
+.calc-btn:active { transform: scale(0.91); box-shadow: 0 0 10px rgba(0,198,255,0.3); }
+.calc-btn.op    { background: rgba(0,198,255,0.12); color: var(--primary); border-color: rgba(0,198,255,0.3); }
+.calc-btn.eq    { background: linear-gradient(135deg, var(--primary), #0077b6); color: #fff; border: none; box-shadow: 0 4px 20px rgba(0,198,255,0.3); }
+.calc-btn.clr   { background: rgba(255,68,68,0.12); color: var(--danger); border-color: rgba(255,68,68,0.3); }
+.calc-btn.sp    { background: rgba(255,215,0,0.1); color: var(--gold); border-color: rgba(255,215,0,0.3); }
+.calc-btn.wide  { grid-column: span 2; aspect-ratio: auto; padding: 12px; }
+
+/* VAULT PAGE */
+.vault-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.vault-header h2 { margin: 0; flex: 1; }
+
+.vault-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.stat-box {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: 14px;
+  padding: 12px;
+  text-align: center;
+}
+.stat-num {
+  font-family: 'Orbitron', monospace;
+  font-size: 24px;
+  color: var(--primary);
+}
+.stat-label { font-size: 11px; letter-spacing: 2px; opacity: 0.6; text-transform: uppercase; }
+
+.vault-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+
+.photo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+  gap: 8px;
+  overflow-y: auto;
+  flex: 1;
+  padding-right: 4px;
+}
+.photo-grid::-webkit-scrollbar { width: 4px; }
+.photo-grid::-webkit-scrollbar-thumb { background: var(--glass-border); border-radius: 99px; }
+
+.photo-thumb {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: pointer;
+  aspect-ratio: 1;
+  background: rgba(0,0,0,0.3);
+  border: 1px solid var(--glass-border);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.photo-thumb:hover { transform: scale(1.04); box-shadow: 0 4px 20px rgba(0,198,255,0.3); }
+.photo-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.photo-thumb .del-btn {
+  position: absolute;
+  top: 4px; right: 4px;
+  background: rgba(255,0,0,0.8);
+  border: none;
+  border-radius: 6px;
+  color: #fff;
+  width: 22px; height: 22px;
+  font-size: 12px;
+  cursor: pointer;
+  display: none;
+  align-items: center; justify-content: center;
+}
+.photo-thumb:hover .del-btn { display: flex; }
+
+/* FULLSCREEN VIEWER */
+#viewer {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.96);
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+#viewer.active { display: flex; }
+#viewer img {
+  max-width: 92vw;
+  max-height: 80vh;
+  border-radius: 16px;
+  box-shadow: 0 0 60px rgba(0,0,0,0.8);
+  transition: opacity 0.25s;
+}
+.viewer-controls {
+  position: absolute;
+  bottom: 24px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+.viewer-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 50%;
+  width: 46px; height: 46px;
+  font-size: 20px;
+  cursor: pointer;
+  color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.2s;
+}
+.viewer-nav:hover { background: rgba(0,198,255,0.3); }
+.viewer-nav.left { left: 16px; }
+.viewer-nav.right { right: 16px; }
+.viewer-close {
+  position: absolute;
+  top: 16px; right: 16px;
+  background: rgba(255,0,0,0.7);
+  border: none;
+  border-radius: 12px;
+  color: #fff;
+  width: 40px; height: 40px;
+  font-size: 18px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.viewer-close:hover { background: rgba(255,0,0,1); }
+.viewer-counter {
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 99px;
+  padding: 6px 16px;
+  font-size: 13px;
+  font-family: 'Orbitron', monospace;
+  letter-spacing: 2px;
+}
+
+/* HISTORY PAGE */
+.history-list {
+  overflow-y: auto;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-right: 4px;
+}
+.history-list::-webkit-scrollbar { width: 4px; }
+.history-list::-webkit-scrollbar-thumb { background: var(--glass-border); border-radius: 99px; }
+.history-item {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  padding: 10px 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+  animation: slideUp 0.3s ease;
+}
+.history-item .expr { opacity: 0.6; }
+.history-item .result { font-family: 'Orbitron'; color: var(--primary); font-size: 16px; }
+
+/* NOTES VAULT */
+.note-item {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 8px;
+  position: relative;
+}
+.note-title { font-family: 'Orbitron'; font-size: 13px; color: var(--primary); margin-bottom: 4px; }
+.note-body { font-size: 13px; opacity: 0.8; white-space: pre-wrap; word-break: break-word; }
+.note-del {
+  position: absolute;
+  top: 8px; right: 8px;
+  background: rgba(255,68,68,0.15);
+  border: none;
+  border-radius: 8px;
+  color: var(--danger);
+  padding: 2px 8px;
+  cursor: pointer;
+  font-size: 12px;
 }
 
 /* TOAST */
-.toast{
-position:fixed;
-bottom:20px;
-left:50%;
-transform:translateX(-50%);
-background:black;
-padding:10px 20px;
-border-radius:20px;
-display:none;
+.toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(0);
+  background: rgba(10,10,20,0.95);
+  border: 1px solid var(--glass-border);
+  color: var(--text);
+  padding: 12px 24px;
+  border-radius: 99px;
+  font-size: 14px;
+  letter-spacing: 1px;
+  z-index: 99999;
+  backdrop-filter: blur(12px);
+  transition: opacity 0.4s, transform 0.4s;
+  opacity: 0;
+  pointer-events: none;
+  white-space: nowrap;
 }
+.toast.show { opacity: 1; }
+
+/* TABS */
+.tab-bar {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 14px;
+  background: rgba(0,0,0,0.3);
+  border-radius: 12px;
+  padding: 4px;
+}
+.tab {
+  flex: 1;
+  padding: 8px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--text);
+  font-family: 'Orbitron';
+  font-size: 10px;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+  opacity: 0.5;
+}
+.tab.active { background: var(--primary); color: #fff; opacity: 1; }
+
+/* SWITCH */
+.switch-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--glass-border);
+}
+.switch-label { font-size: 14px; letter-spacing: 1px; }
+.switch {
+  position: relative;
+  width: 44px; height: 24px;
+}
+.switch input { display: none; }
+.switch-slider {
+  position: absolute;
+  inset: 0;
+  background: rgba(255,255,255,0.1);
+  border-radius: 99px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+.switch-slider::after {
+  content: '';
+  position: absolute;
+  left: 3px; top: 3px;
+  width: 18px; height: 18px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform 0.3s;
+}
+.switch input:checked + .switch-slider { background: var(--primary); }
+.switch input:checked + .switch-slider::after { transform: translateX(20px); }
+
+/* PIN dots */
+.pin-display {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin: 20px 0;
+}
+.pin-dot {
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  border: 2px solid var(--glass-border);
+  transition: background 0.2s, border-color 0.2s;
+}
+.pin-dot.filled { background: var(--primary); border-color: var(--primary); }
+
+.pin-pad {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+.pin-key {
+  aspect-ratio: 1;
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  background: var(--glass);
+  color: var(--text);
+  font-family: 'Orbitron';
+  font-size: 18px;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+}
+.pin-key:hover { background: rgba(0,198,255,0.15); }
+.pin-key:active { transform: scale(0.9); }
+.pin-key.del { font-size: 14px; color: var(--danger); }
+
+/* LOCK ANIM */
+@keyframes shake {
+  0%,100% { transform: translateX(0); }
+  20%,60% { transform: translateX(-10px); }
+  40%,80% { transform: translateX(10px); }
+}
+.shake { animation: shake 0.4s ease; }
+
+/* PROGRESS / STRENGTH */
+.strength-bar { height: 4px; border-radius: 99px; background: rgba(255,255,255,0.1); margin-top: 4px; overflow: hidden; }
+.strength-fill { height: 100%; border-radius: 99px; transition: width 0.3s, background 0.3s; }
+
+/* NOTES AREA */
+textarea {
+  width: 100%;
+  background: rgba(0,0,0,0.3);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  color: var(--text);
+  font-family: 'Rajdhani';
+  font-size: 14px;
+  padding: 10px;
+  resize: none;
+  outline: none;
+}
+textarea:focus { border-color: var(--primary); }
+
+.badge {
+  background: var(--danger);
+  color: #fff;
+  border-radius: 99px;
+  padding: 1px 7px;
+  font-size: 11px;
+  font-family: 'Orbitron';
+}
+
+/* SETTINGS */
+.settings-section { margin-bottom: 16px; }
+.settings-title { font-family: 'Orbitron'; font-size: 11px; letter-spacing: 3px; color: rgba(0,198,255,0.5); margin-bottom: 10px; text-transform: uppercase; }
+
+/* ANIMATED SCAN LINE */
+.scan-line {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--primary), transparent);
+  opacity: 0.4;
+  animation: scan 4s linear infinite;
+  z-index: 1;
+  pointer-events: none;
+}
+@keyframes scan {
+  from { top: 0; }
+  to   { top: 100vh; }
+}
+
+/* SCROLLBAR GLOBAL */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-thumb { background: var(--glass-border); border-radius: 99px; }
+
+/* SEARCH */
+.search-bar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.search-bar input { margin: 0; flex: 1; }
 </style>
 </head>
-
 <body>
 
+<div class="scan-line"></div>
+
+<!-- SPLASH -->
 <div id="splash">
-<h1>SAMARTH</h1>
+  <div class="splash-logo">SAMARTH</div>
+  <div class="splash-sub">Ultra Vault · Secure · Private</div>
+  <div class="splash-bar"><div class="splash-bar-fill"></div></div>
 </div>
 
 <!-- AUTH -->
-<div class="center" id="auth" style="display:none;">
-<div class="container">
-<h2>Create Account</h2>
-<input id="regUser" placeholder="Username">
-<input id="regPass" type="password" placeholder="Password">
-<button onclick="register()">Register</button>
+<div class="page" id="authPage">
+  <div class="card">
+    <div class="tab-bar">
+      <button class="tab active" id="tabLogin" onclick="switchAuthTab('login')">LOGIN</button>
+      <button class="tab" id="tabRegister" onclick="switchAuthTab('register')">REGISTER</button>
+    </div>
 
-<h2>Login</h2>
-<input id="logUser" placeholder="Username">
-<input id="logPass" type="password" placeholder="Password">
-<button onclick="login()">Login</button>
-</div>
-</div>
+    <div id="loginForm">
+      <h2>👤 Login</h2>
+      <input type="text" id="logUser" placeholder="Username" autocomplete="off">
+      <div style="position:relative">
+        <input type="password" id="logPass" placeholder="Password" style="padding-right:44px">
+        <span style="position:absolute;right:14px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:18px;opacity:0.5" onclick="togglePw('logPass',this)">👁</span>
+      </div>
+      <button class="btn btn-primary" onclick="login()">🔑 SIGN IN</button>
+      <button class="btn btn-ghost" onclick="guestLogin()">👤 Guest Mode</button>
+    </div>
 
-<!-- PIN -->
-<div class="center" id="pinScreen">
-<div class="container">
-<h2>Enter Vault PIN</h2>
-<input id="vaultPin" type="password">
-<button onclick="checkPin()">Unlock</button>
-<button onclick="backToCalc()">Back</button>
-</div>
-</div>
-
-<!-- CALCULATOR -->
-<div class="center" id="calculator">
-<div class="container">
-<button onclick="toggleTheme()">Theme</button>
-<button onclick="openHistory()">History</button>
-<div class="display" id="display"></div>
-
-<div class="grid">
-<button onclick="press('7')">7</button>
-<button onclick="press('8')">8</button>
-<button onclick="press('9')">9</button>
-<button onclick="press('/')">/</button>
-<button onclick="press('4')">4</button>
-<button onclick="press('5')">5</button>
-<button onclick="press('6')">6</button>
-<button onclick="press('*')">*</button>
-<button onclick="press('1')">1</button>
-<button onclick="press('2')">2</button>
-<button onclick="press('3')">3</button>
-<button onclick="press('-')">-</button>
-<button onclick="press('0')">0</button>
-<button onclick="press('.')">.</button>
-<button onclick="calculate()">=</button>
-<button onclick="press('+')">+</button>
+    <div id="registerForm" style="display:none">
+      <h2>✨ Register</h2>
+      <input type="text" id="regUser" placeholder="Choose username" autocomplete="off">
+      <div style="position:relative">
+        <input type="password" id="regPass" placeholder="Password" oninput="checkStrength(this)" style="padding-right:44px">
+        <span style="position:absolute;right:14px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:18px;opacity:0.5" onclick="togglePw('regPass',this)">👁</span>
+      </div>
+      <div class="strength-bar"><div class="strength-fill" id="strengthFill" style="width:0;background:#ff4444"></div></div>
+      <button class="btn btn-success" onclick="register()">🚀 CREATE ACCOUNT</button>
+    </div>
+  </div>
 </div>
 
-<button onclick="clearDisplay()">C</button>
-<button onclick="sqrt()">√</button>
-<button onclick="power()">x²</button>
-<button onclick="memoryAdd()">M+</button>
-<button onclick="memoryRecall()">MR</button>
-<button onclick="logout()">Logout</button>
-</div>
-</div>
-
-<!-- HISTORY -->
-<div class="center" id="historyPage">
-<div class="container">
-<h2>History</h2>
-<div class="history" id="history"></div>
-<button onclick="backToCalc()">Back</button>
-</div>
-</div>
-
-<!-- VAULT -->
-<div id="vaultPage" class="container">
-<button onclick="backToCalc()">Back</button>
-<h2>🔐 Secret Vault</h2>
-<input type="file" multiple accept="image/*" onchange="upload(event)">
-<button onclick="clearVault()">Clear Vault</button>
-<div id="storage"></div>
-<div class="photoGrid" id="gallery"></div>
-</div>
-
-<!-- FULLSCREEN VIEWER -->
-<div id="viewer">
-<button class="closeBtn" onclick="closeViewer()">✖</button>
-<img id="fullImg">
-<div id="counter"></div>
-</div>
-
-<div class="toast" id="toast"></div>
-
-<script>
-let currentUser=null;
-let memory=0;
-let secret="";
-let wrongPin=0;
-let locked=false;
-let currentIndex=0;
-let startX=0;
-let lastActivity=Date.now();
-
-/* SPLASH */
-setTimeout(()=>{
-splash.style.display="none";
-auth.style.display="flex";
-},2500);
-
-function toastMsg(msg){
-toast.innerText=msg;
-toast.style.display="block";
-setTimeout(()=>toast.style.display="none",2000);
-}
-
-function register(){
-let u=regUser.value;
-let p=regPass.value;
-if(!u||!p) return toastMsg("Fill fields");
-let users=JSON.parse(localStorage.getItem("users")||"{}");
-users[u]=p;
-localStorage.setItem("users",JSON.stringify(users));
-toastMsg("Registered");
-}
-
-function login(){
-let u=logUser.value;
-let p=logPass.value;
-let users=JSON.parse(localStorage.getItem("users")||"{}");
-if(users[u]===p){
-currentUser=u;
-auth.style.display="none";
-calculator.style.display="flex";
-}else toastMsg("Wrong login");
-}
-
-function logout(){location.reload();}
-
-function press(v){
-display.innerText+=v;
-secret+=v;
-if(secret.includes("777")){
-calculator.style.display="none";
-pinScreen.style.display="flex";
-}
-if(secret.length>3) secret=secret.slice(-3);
-}
-
-function calculate(){
-try{
-let result=eval(display.innerText);
-history.innerHTML+=display.innerText+" = "+result+"<br>";
-display.innerText=result;
-}catch{display.innerText="Error";}
-}
-
-function clearDisplay(){display.innerText="";}
-function sqrt(){display.innerText=Math.sqrt(display.innerText);}
-function power(){display.innerText=Math.pow(display.innerText,2);}
-function memoryAdd(){memory+=parseFloat(display.innerText)||0;}
-function memoryRecall(){display.innerText=memory;}
-
-function openHistory(){
-calculator.style.display="none";
-historyPage.style.display="flex";
-}
-
-function backToCalc(){
-pinScreen.style.display="none";
-vaultPage.style.display="none";
-historyPage.style.display="none";
-calculator.style.display="flex";
-}
-
-function checkPin(){
-if(locked) return;
-let pin=vaultPin.value;
-let savedPin=localStorage.getItem("pin_"+currentUser)||"1234";
-if(pin===savedPin){
-pinScreen.style.display="none";
-vaultPage.style.display="block";
-load();
-}else{
-wrongPin++;
-toastMsg("Wrong PIN");
-if(wrongPin>=3){
-locked=true;
-toastMsg("Locked 30 sec");
-setTimeout(()=>{locked=false;wrongPin=0;},30000);
-}
-}
-}
-
-function upload(e){
-let files=Array.from(e.target.files);
-let photos=JSON.parse(localStorage.getItem("photos_"+currentUser)||"[]");
-files.forEach(f=>{
-let r=new FileReader();
-r.onload=function(ev){
-photos.push(ev.target.result);
-localStorage.setItem("photos_"+currentUser,JSON.stringify(photos));
-load();
-}
-r.readAsDataURL(f);
-});
-}
-
-function load(){
-gallery.innerHTML="";
-let photos=JSON.parse(localStorage.getItem("photos_"+currentUser)||"[]");
-storage.innerText="Photos: "+photos.length;
-photos.forEach((p,i)=>{
-let img=document.createElement("img");
-img.src=p;
-img.onclick=()=>openViewer(i);
-gallery.appendChild(img);
-});
-}
-
-function openViewer(i){
-let photos=JSON.parse(localStorage.getItem("photos_"+currentUser)||"[]");
-currentIndex=i;
-viewer.style.display="flex";
-fullImg.src=photos[i];
-counter.innerText=(i+1)+" / "+photos.length;
-}
-
-function closeViewer(){
-viewer.style.display="none";
-}
-
-/* TOUCH SWIPE */
-viewer.addEventListener("touchstart",e=>{
-startX=e.touches[0].clientX;
-});
-
-viewer.addEventListener("touchend",e=>{
-let endX=e.changedTouches[0].clientX;
-let diff=endX-startX;
-let photos=JSON.parse(localStorage.getItem("photos_"+currentUser)||"[]");
-
-if(Math.abs(diff)>50){
-if(diff<0){
-currentIndex=(currentIndex+1)%photos.length;
-}else{
-currentIndex=(currentIndex-1+photos.length)%photos.length;
-}
-fullImg.src=photos[currentIndex];
-counter.innerText=(currentIndex+1)+" / "+photos.length;
-}
-});
-
-function clearVault(){
-localStorage.removeItem("photos_"+currentUser);
-load();
-}
-
-function toggleTheme(){
-document.body.classList.toggle("light");
-}
-
-setInterval(()=>{
-if(Date.now()-lastActivity>120000 && currentUser){
-toastMsg("Auto logout");
-logout();
-}
-},5000);
-
-document.onclick=()=>lastActivity=Date.now();
-</script>
-
-</body>
-</html>
+<!-- PIN SCREEN -->
+<div class="page" id="pinPage">
+  <div class="card">
+    <div style="text-align:center">
+      <div style="font-size:40px;margin-bottom:8px">🔐</div>
+      <h2 style="text-align:center">VAULT PIN</h2>
+      <div id="pinSubtitle" style="font-size:12px;opacity:0.5;letter-spacing:2px;margin-bottom:6px">ENTER 4-DIGIT PIN</div>
+      <div class="pin-display" id="pinDots">
+        <div class="pin-dot"></div>
+        <div class="pin-dot"></div>
+        <div class="pin-dot"></div>
+        <div class="pin-dot"></div>
+      </div>
+    </div>
+    <div class="pin-pad" id="pinPad">
+      <button class="pin-key" onclick="pinPress(1)">1</button>
+      <button class="pin-key" onclick="pinPress(2)">2</button>
+      <button class="pin-key"
